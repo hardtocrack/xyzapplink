@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>xyzapp.link · Tu stack de privacidad. Una sola variable: tú.</title>
+<meta name="description" content="Hub modular de privacidad. Nube cifrada, fotos, contraseñas, email cifrado, alias, números desechables, SMS temporal. Una arquitectura. Una cuenta. Cero accesos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=JetBrains+Mono:wght@300;400;500;700&family=Inter+Tight:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #0b0f14;
+  --bg-1:      #0e1318;
+  --bg-2:      #131a22;
+  --surface:   #161e28;
+  --surface-2: #1a2330;
+  --line:      #1f2a38;
+  --line-2:    #2a3a4f;
+  --cyan:      #00e5ff;
+  --cyan-d:    #00b8cc;
+  --cyan-soft: rgba(0,229,255,0.08);
+  --magenta:   #ff3da6;
+  --gold:      #ffb84d;
+  --green:     #28e090;
+  --text:      #e7eef7;
+  --text-2:    #9fb0c4;
+  --dim:       #5b6c82;
+  --font-d:    'Syne', sans-serif;
+  --font-m:    'JetBrains Mono', monospace;
+  --font-b:    'Inter Tight', system-ui, sans-serif;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-b);
+  line-height: 1.55;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--cyan); color: var(--bg); }
+
+/* Grid background + radial glow */
+body::before {
+  content:''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(0,229,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,0.025) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+body::after {
+  content:''; position: fixed; top: -300px; left: 50%;
+  transform: translateX(-50%); width: 1400px; height: 700px;
+  background: radial-gradient(ellipse, rgba(0,229,255,0.10) 0%, transparent 60%);
+  z-index: 0; pointer-events: none;
+}
+
+/* ═══ NAV ═══ */
+nav {
+  position: fixed; top: 16px; left: 16px; right: 16px; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px 12px 20px;
+  background: rgba(11,15,20,0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text); }
+.brand-mark {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--cyan), var(--magenta));
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; color: var(--bg);
+  font-family: var(--font-d); font-weight: 800;
+  font-size: 14px; letter-spacing: -0.05em;
+}
+.brand-mark::after {
+  content:''; position: absolute; inset: -4px;
+  border: 1px solid var(--cyan); border-radius: 12px; opacity: 0.3;
+}
+.brand-name { font-family: var(--font-d); font-weight: 700; font-size: 17px; letter-spacing: -0.02em; }
+.brand-name .tld { color: var(--cyan); }
+.nav-pills { display: flex; gap: 2px; list-style: none; padding: 4px; background: var(--bg-2); border-radius: 999px; border: 1px solid var(--line); }
+.nav-pills a {
+  font-family: var(--font-m); font-size: 12px; color: var(--text-2);
+  text-decoration: none; padding: 8px 14px; border-radius: 999px;
+  transition: all 0.2s; display: inline-block;
+}
+.nav-pills a:hover { color: var(--cyan); background: var(--cyan-soft); }
+.nav-actions { display: flex; align-items: center; gap: 10px; }
+.status-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font-m); font-size: 11px; color: var(--green);
+  padding: 6px 12px; background: rgba(40,224,144,0.08);
+  border: 1px solid rgba(40,224,144,0.2); border-radius: 999px;
+}
+.status-pill::before { content:''; width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: blink 1.6s infinite; }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.nav-cta {
+  background: var(--cyan); color: var(--bg);
+  font-family: var(--font-m); font-size: 12px; font-weight: 700;
+  padding: 10px 18px; border-radius: 999px;
+  text-decoration: none; transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.nav-cta:hover { background: var(--text); }
+
+/* ═══ HERO ═══ */
+section { position: relative; z-index: 1; }
+#hero { padding: 130px 40px 80px; }
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-m); font-size: 12px; color: var(--cyan);
+  padding: 8px 16px; background: var(--cyan-soft);
+  border: 1px solid rgba(0,229,255,0.2); border-radius: 999px;
+  margin-bottom: 32px;
+  opacity: 0; animation: fadeUp 0.6s ease 0.1s forwards;
+}
+.hero-tag::before { content:'◆'; }
+.hero-h1 {
+  font-family: var(--font-d); font-weight: 800;
+  font-size: clamp(56px, 9vw, 144px);
+  line-height: 0.92; letter-spacing: -0.04em;
+  max-width: 1100px; margin-bottom: 36px;
+  opacity: 0; animation: fadeUp 0.7s ease 0.25s forwards;
+}
+.hero-h1 .grad {
+  background: linear-gradient(135deg, var(--cyan) 0%, var(--magenta) 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.hero-h1 .var {
+  display: inline-block; position: relative;
+  font-style: italic;
+}
+.hero-h1 .var::after {
+  content:''; position: absolute; left: -4px; right: -4px;
+  bottom: 6px; height: 8px;
+  background: linear-gradient(90deg, var(--cyan), var(--magenta));
+  border-radius: 4px; z-index: -1; opacity: 0.4;
+}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.hero-lead {
+  font-size: clamp(17px, 1.6vw, 21px); color: var(--text-2);
+  max-width: 720px; line-height: 1.6; margin-bottom: 44px;
+  opacity: 0; animation: fadeUp 0.7s ease 0.4s forwards;
+}
+.hero-lead b { color: var(--text); font-weight: 600; }
+.hero-cta { display: flex; gap: 14px; flex-wrap: wrap;
+  opacity: 0; animation: fadeUp 0.7s ease 0.55s forwards;
+}
+.btn {
+  font-family: var(--font-m); font-size: 13px; font-weight: 500;
+  padding: 16px 28px; border-radius: 12px;
+  text-decoration: none; transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 10px;
+  border: 1px solid transparent; cursor: pointer;
+}
+.btn-cyan { background: var(--cyan); color: var(--bg); font-weight: 700; }
+.btn-cyan:hover { background: var(--text); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,229,255,0.2); }
+.btn-ghost { background: var(--surface); color: var(--text); border-color: var(--line-2); }
+.btn-ghost:hover { border-color: var(--cyan); color: var(--cyan); }
+.btn .arr { font-size: 16px; }
+
+/* HUB STATS + RADIAL DIAGRAM */
+.hero-hub {
+  margin-top: 80px;
+  display: grid; grid-template-columns: 1fr 480px;
+  gap: 60px; align-items: center;
+  opacity: 0; animation: fadeUp 0.8s ease 0.75s forwards;
+}
+.hero-hub-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.stat-card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 14px; padding: 22px 22px;
+  position: relative; transition: all 0.2s;
+}
+.stat-card:hover { border-color: var(--cyan); transform: translateY(-3px); }
+.stat-card .stat-key {
+  font-family: var(--font-m); font-size: 11px; color: var(--text-2);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  margin-bottom: 10px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.stat-card .stat-key b { color: var(--cyan); font-weight: 400; font-size: 10px; padding: 2px 8px; background: var(--cyan-soft); border-radius: 99px; }
+.stat-card .stat-val {
+  font-family: var(--font-d); font-size: 38px; font-weight: 700;
+  line-height: 1; letter-spacing: -0.03em; color: var(--text);
+}
+.stat-card .stat-val .sub {
+  font-family: var(--font-m); font-size: 11px; color: var(--text-2);
+  margin-left: 8px; font-weight: 400; letter-spacing: 0;
+}
+.stat-card .stat-val .cyan { color: var(--cyan); }
+
+/* Radial Hub SVG container */
+.hub-svg { width: 100%; height: auto; filter: drop-shadow(0 0 40px rgba(0,229,255,0.15)); }
+
+/* ═══ MARQUEE ═══ */
+.h-marquee {
+  position: relative; z-index: 1; padding: 28px 0;
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  background: var(--bg-1); overflow: hidden;
+}
+.h-marquee-track {
+  display: flex; white-space: nowrap; gap: 60px;
+  animation: marquee 40s linear infinite;
+  font-family: var(--font-d); font-size: 30px; font-weight: 700;
+  letter-spacing: -0.02em; color: var(--text-2);
+}
+.h-marquee-track .y { color: var(--cyan); }
+.h-marquee-track .m { color: var(--magenta); }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* ═══ SECTION INTRO ═══ */
+.section-intro {
+  padding: 100px 40px 40px;
+  display: grid; grid-template-columns: auto 1fr;
+  align-items: end; gap: 60px;
+}
+.section-eyebrow {
+  font-family: var(--font-m); font-size: 12px; color: var(--cyan);
+  text-transform: uppercase; letter-spacing: 0.2em;
+  display: inline-flex; align-items: center; gap: 10px;
+  margin-bottom: 16px;
+}
+.section-eyebrow::before { content:''; width: 28px; height: 1px; background: var(--cyan); }
+.section-h {
+  font-family: var(--font-d); font-weight: 700;
+  font-size: clamp(40px, 5.5vw, 84px);
+  line-height: 0.95; letter-spacing: -0.03em;
+}
+.section-h em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--cyan), var(--magenta));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.section-intro p {
+  font-size: 17px; color: var(--text-2); line-height: 1.6;
+  max-width: 460px;
+}
+
+/* ═══ HUB MODULES (8 services) ═══ */
+#hub { padding: 0 40px 100px; }
+.hub-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+.svc {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 18px; padding: 28px 26px;
+  position: relative; overflow: hidden;
+  transition: all 0.25s; cursor: pointer;
+  display: flex; flex-direction: column;
+}
+.svc:hover { border-color: var(--cyan); transform: translateY(-4px); }
+.svc::before {
+  content:''; position: absolute; top: 0; left: 0; right: 0;
+  height: 1px; background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  opacity: 0; transition: opacity 0.3s;
+}
+.svc:hover::before { opacity: 1; }
+.svc.lg { grid-column: span 6; min-height: 300px; }
+.svc.md { grid-column: span 4; min-height: 260px; }
+.svc.sm { grid-column: span 3; min-height: 230px; }
+.svc.xl { grid-column: span 8; min-height: 260px; }
+.svc-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+.svc-glyph {
+  width: 46px; height: 46px; border-radius: 12px;
+  background: var(--cyan-soft); border: 1px solid rgba(0,229,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-d); font-weight: 800;
+  font-size: 17px; color: var(--cyan); letter-spacing: -0.04em;
+}
+.svc.coming .svc-glyph { background: rgba(255,184,77,0.08); border-color: rgba(255,184,77,0.2); color: var(--gold); }
+.svc-status {
+  font-family: var(--font-m); font-size: 10px; color: var(--green);
+  padding: 4px 10px; background: rgba(40,224,144,0.08);
+  border-radius: 99px; letter-spacing: 0.1em; text-transform: uppercase;
+}
+.svc-status::before { content:'●'; margin-right: 6px; }
+.svc-status.coming { color: var(--gold); background: rgba(255,184,77,0.08); }
+.svc-num {
+  position: absolute; top: 12px; right: 18px;
+  font-family: var(--font-m); font-size: 10px;
+  color: var(--dim); letter-spacing: 0.15em;
+}
+.svc h3 {
+  font-family: var(--font-d); font-weight: 700;
+  font-size: 22px; letter-spacing: -0.02em;
+  margin-bottom: 10px; line-height: 1.15;
+}
+.svc.lg h3, .svc.xl h3 { font-size: 30px; }
+.svc p {
+  font-size: 14px; color: var(--text-2);
+  line-height: 1.55; margin-bottom: auto;
+}
+.svc-foot {
+  margin-top: 22px; padding-top: 16px;
+  border-top: 1px dashed var(--line-2);
+  font-family: var(--font-m); font-size: 11px; color: var(--text-2);
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+}
+.svc-foot .replaces b { color: var(--cyan); font-weight: 500; }
+.svc-arrow {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 1px solid var(--line-2);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-2); transition: all 0.2s;
+  font-size: 14px; flex-shrink: 0;
+}
+.svc:hover .svc-arrow { background: var(--cyan); color: var(--bg); border-color: var(--cyan); transform: translateX(2px); }
+
+/* ═══ ARCHITECTURE ═══ */
+#arch { padding: 0 40px 100px; }
+.arch-card {
+  background: var(--bg-1); border: 1px solid var(--line);
+  border-radius: 24px; padding: 50px;
+  display: grid; grid-template-columns: 1fr 1.1fr;
+  gap: 60px; align-items: center;
+  position: relative; overflow: hidden;
+}
+.arch-card::before {
+  content:''; position: absolute; top: -100px; right: -100px;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(0,229,255,0.06), transparent 70%);
+  pointer-events: none;
+}
+.arch-card h2 {
+  font-family: var(--font-d); font-weight: 700;
+  font-size: clamp(36px, 4.5vw, 60px);
+  line-height: 1; letter-spacing: -0.03em; margin-bottom: 24px;
+}
+.arch-card h2 .cyan { color: var(--cyan); }
+.arch-card p { font-size: 15px; color: var(--text-2); line-height: 1.7; margin-bottom: 14px; }
+.arch-bullets { list-style: none; margin-top: 24px; }
+.arch-bullets li {
+  font-family: var(--font-m); font-size: 13px; color: var(--text);
+  padding: 12px 0 12px 30px;
+  border-top: 1px solid var(--line); position: relative;
+}
+.arch-bullets li:last-child { border-bottom: 1px solid var(--line); }
+.arch-bullets li::before { content:'◆'; position: absolute; left: 4px; top: 12px; color: var(--cyan); }
+.arch-bullets b { color: var(--cyan); font-weight: 500; }
+
+.arch-visual {
+  background: var(--bg); border: 1px solid var(--line);
+  border-radius: 16px; padding: 24px; position: relative;
+}
+.arch-visual::before {
+  content:'flow_v1.svg'; position: absolute; top: 12px; right: 16px;
+  font-family: var(--font-m); font-size: 10px; color: var(--dim);
+}
+.flow-row { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px dashed var(--line); }
+.flow-row:last-child { border-bottom: none; }
+.flow-box {
+  flex: 1; background: var(--surface); border: 1px solid var(--line-2);
+  padding: 14px 16px; border-radius: 10px;
+  font-family: var(--font-m); font-size: 12px; color: var(--text);
+}
+.flow-box.active { border-color: var(--cyan); background: var(--cyan-soft); }
+.flow-box.danger { border-color: var(--magenta); background: rgba(255,61,166,0.06); color: var(--text-2); }
+.flow-box small { display: block; color: var(--text-2); font-size: 10px; margin-top: 4px; letter-spacing: 0.05em; }
+.flow-box.active small { color: var(--cyan); }
+.flow-box.danger small { color: var(--magenta); }
+.flow-arrow { color: var(--cyan); font-family: var(--font-m); font-size: 14px; font-weight: 700; position: relative; padding: 0 4px; }
+.flow-arrow span { position: absolute; font-size: 9px; bottom: -16px; left: 50%; transform: translateX(-50%); color: var(--text-2); white-space: nowrap; letter-spacing: 0.1em; }
+.flow-arrow.r { color: var(--magenta); }
+.flow-arrow.r span { color: var(--magenta); }
+
+/* ═══ STACK COMPARISON ═══ */
+#stack { padding: 0 40px 100px; }
+.stack-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.stack-pane {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 20px; padding: 36px;
+}
+.stack-pane.bad { background: linear-gradient(180deg, var(--surface), var(--bg-1)); }
+.stack-pane.good {
+  border-color: rgba(0,229,255,0.3);
+  background: linear-gradient(180deg, rgba(0,229,255,0.04), var(--surface));
+}
+.stack-pane h3 {
+  font-family: var(--font-d); font-weight: 700;
+  font-size: 26px; letter-spacing: -0.02em; margin-bottom: 8px;
+}
+.stack-pane.good h3 { color: var(--cyan); }
+.stack-sub { font-family: var(--font-m); font-size: 12px; color: var(--text-2); margin-bottom: 24px; letter-spacing: 0.05em; }
+.stack-list { list-style: none; }
+.stack-list li {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 13px 0; border-top: 1px solid var(--line);
+  font-family: var(--font-m); font-size: 13px; color: var(--text);
+}
+.stack-list li:last-child { border-bottom: 1px solid var(--line); }
+.stack-list .price-tag { font-family: var(--font-m); font-size: 11px; color: var(--text-2); }
+.stack-list .price-tag.bad { color: var(--magenta); }
+.stack-list .price-tag.good { color: var(--cyan); }
+.stack-total {
+  margin-top: 24px; padding: 18px 22px;
+  border-radius: 12px;
+  background: var(--bg); border: 1px solid var(--line-2);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.stack-pane.good .stack-total { border-color: rgba(0,229,255,0.3); background: rgba(0,229,255,0.03); }
+.stack-total-label { font-family: var(--font-m); font-size: 10px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 4px; }
+.stack-total-val { font-family: var(--font-d); font-weight: 800; font-size: 32px; letter-spacing: -0.03em; }
+.stack-total-val .cyan { color: var(--cyan); }
+.stack-total-val .mag { color: var(--magenta); }
+
+/* ═══ PRICING ═══ */
+#pricing { padding: 0 40px 100px; }
+.pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.plan {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 20px; padding: 36px 32px;
+  position: relative; transition: all 0.25s;
+}
+.plan:hover { transform: translateY(-4px); border-color: var(--line-2); }
+.plan.featured {
+  background: linear-gradient(180deg, rgba(0,229,255,0.06), var(--surface));
+  border-color: var(--cyan);
+}
+.plan-badge {
+  position: absolute; top: -12px; left: 32px;
+  background: var(--cyan); color: var(--bg);
+  font-family: var(--font-m); font-size: 10px; font-weight: 700;
+  padding: 6px 14px; border-radius: 99px;
+  letter-spacing: 0.15em; text-transform: uppercase;
+}
+.plan-tag { font-family: var(--font-m); font-size: 11px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 16px; }
+.plan-name { font-family: var(--font-d); font-weight: 700; font-size: 28px; letter-spacing: -0.03em; margin-bottom: 16px; }
+.plan-price { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+.plan-price .currency { font-family: var(--font-d); font-weight: 600; font-size: 22px; color: var(--text-2); }
+.plan-price .amount { font-family: var(--font-d); font-weight: 800; font-size: 62px; letter-spacing: -0.04em; line-height: 1; }
+.plan.featured .plan-price .amount { color: var(--cyan); }
+.plan-price .freeword { font-family: var(--font-d); font-weight: 800; font-size: 40px; letter-spacing: -0.03em; color: var(--cyan); line-height: 1; }
+.plan-period {
+  font-family: var(--font-m); font-size: 12px; color: var(--text-2);
+  margin-bottom: 24px; padding-bottom: 24px;
+  border-bottom: 1px dashed var(--line-2);
+}
+.plan-list { list-style: none; margin-bottom: 28px; }
+.plan-list li {
+  font-family: var(--font-m); font-size: 12px; color: var(--text);
+  padding: 9px 0 9px 26px; position: relative;
+}
+.plan-list li::before {
+  content:'✓'; position: absolute; left: 0; top: 9px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--cyan-soft); color: var(--cyan);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700;
+}
+.plan-btn {
+  display: block; text-align: center;
+  font-family: var(--font-m); font-size: 12px; font-weight: 700;
+  padding: 16px; border-radius: 12px;
+  text-decoration: none; letter-spacing: 0.05em;
+  transition: all 0.2s;
+  background: var(--bg-2); color: var(--text);
+  border: 1px solid var(--line-2);
+}
+.plan-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+.plan.featured .plan-btn { background: var(--cyan); color: var(--bg); border-color: var(--cyan); }
+.plan.featured .plan-btn:hover { background: var(--text); color: var(--bg); }
+.plan-disclaimer {
+  margin-top: 30px; text-align: center;
+  font-family: var(--font-m); font-size: 11px; color: var(--text-2); letter-spacing: 0.05em;
+}
+.plan-disclaimer span { margin: 0 10px; }
+.plan-disclaimer .dot { color: var(--cyan); }
+
+/* ═══ CERTS ═══ */
+#cert { padding: 0 40px 100px; }
+.cert-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.cert {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 18px; padding: 28px 24px;
+  transition: all 0.25s;
+}
+.cert:hover { border-color: var(--cyan); transform: translateY(-3px); }
+.cert .badge {
+  font-family: var(--font-d); font-weight: 800;
+  font-size: 52px; line-height: 0.9; letter-spacing: -0.04em;
+  background: linear-gradient(135deg, var(--cyan), var(--magenta));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  margin-bottom: 18px;
+}
+.cert h4 { font-family: var(--font-d); font-weight: 700; font-size: 18px; margin-bottom: 8px; letter-spacing: -0.02em; }
+.cert p { font-family: var(--font-m); font-size: 11px; color: var(--text-2); line-height: 1.7; }
+
+/* ═══ FINAL CTA ═══ */
+#final { padding: 100px 40px; }
+.final-card {
+  background:
+    radial-gradient(ellipse at 30% 0%, rgba(0,229,255,0.15), transparent 50%),
+    radial-gradient(ellipse at 70% 100%, rgba(255,61,166,0.1), transparent 50%),
+    var(--bg-1);
+  border: 1px solid var(--cyan);
+  border-radius: 24px; padding: 70px 50px;
+  text-align: center; position: relative; overflow: hidden;
+}
+.final-card::before {
+  content:''; position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(0,229,255,0.08) 1px, transparent 1px);
+  background-size: 24px 24px; opacity: 0.4; pointer-events: none;
+}
+.final-card h2 {
+  font-family: var(--font-d); font-weight: 800;
+  font-size: clamp(44px, 7vw, 96px);
+  line-height: 0.95; letter-spacing: -0.04em;
+  margin-bottom: 24px; position: relative;
+}
+.final-card h2 .grad {
+  background: linear-gradient(135deg, var(--cyan), var(--magenta));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.final-card p { font-size: 17px; color: var(--text-2); max-width: 580px; margin: 0 auto 36px; position: relative; line-height: 1.6; }
+.final-cta-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; position: relative; }
+
+.onboard {
+  margin-top: 80px;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  position: relative;
+}
+.onboard-step {
+  background: var(--bg); border: 1px solid var(--line);
+  border-radius: 16px; padding: 26px;
+  text-align: left;
+}
+.onboard-step .step-n {
+  font-family: var(--font-d); font-weight: 800; font-size: 13px;
+  color: var(--cyan); margin-bottom: 16px; letter-spacing: 0.15em;
+}
+.onboard-step h4 { font-family: var(--font-d); font-weight: 700; font-size: 17px; margin-bottom: 8px; letter-spacing: -0.02em; }
+.onboard-step p { font-size: 13px; color: var(--text-2); line-height: 1.5; margin: 0; max-width: none; }
+
+/* ═══ FOOTER ═══ */
+footer {
+  padding: 50px 40px 28px;
+  border-top: 1px solid var(--line);
+  background: var(--bg-1);
+  position: relative; z-index: 1;
+}
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 50px; margin-bottom: 40px; }
+.footer-col h5 { font-family: var(--font-m); font-size: 11px; color: var(--cyan); text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 16px; }
+.footer-col ul { list-style: none; }
+.footer-col li { margin-bottom: 8px; }
+.footer-col a { font-family: var(--font-m); font-size: 12px; color: var(--text-2); text-decoration: none; transition: color 0.2s; }
+.footer-col a:hover { color: var(--cyan); }
+.footer-col p { font-size: 13px; color: var(--text-2); line-height: 1.6; max-width: 320px; }
+.footer-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+.footer-bottom {
+  padding-top: 28px; border-top: 1px solid var(--line);
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 16px;
+  font-family: var(--font-m); font-size: 11px;
+  color: var(--dim); letter-spacing: 0.1em;
+}
+.footer-bottom .right { display: flex; gap: 14px; align-items: center; }
+.footer-bottom .pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; background: var(--cyan-soft);
+  border-radius: 99px; color: var(--cyan);
+}
+.footer-bottom .pill::before { content:''; width: 6px; height: 6px; background: var(--cyan); border-radius: 50%; }
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 1100px) {
+  nav { flex-wrap: wrap; gap: 10px; padding: 10px 14px; }
+  .nav-pills { order: 3; width: 100%; justify-content: center; flex-wrap: wrap; }
+  .nav-actions .status-pill { display: none; }
+  .hero-h1 { font-size: clamp(48px, 10vw, 96px); }
+  .hero-hub { grid-template-columns: 1fr; gap: 40px; }
+  .section-intro { grid-template-columns: 1fr; gap: 24px; }
+  .svc.lg, .svc.md, .svc.sm, .svc.xl { grid-column: span 6; }
+  .arch-card { grid-template-columns: 1fr; gap: 40px; padding: 36px; }
+  .stack-grid { grid-template-columns: 1fr; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .cert-row { grid-template-columns: repeat(2, 1fr); }
+  .onboard { grid-template-columns: repeat(2, 1fr); }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+}
+@media (max-width: 720px) {
+  nav { left: 8px; right: 8px; top: 8px; }
+  #hero, #hub, #arch, #stack, #pricing, #cert, #final, .section-intro, footer { padding-left: 18px; padding-right: 18px; }
+  .svc.lg, .svc.md, .svc.sm, .svc.xl { grid-column: span 12; }
+  .cert-row { grid-template-columns: 1fr; }
+  .onboard { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .final-card { padding: 50px 26px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="brand">
+    <div class="brand-mark">xyz</div>
+    <div class="brand-name">xyzapp<span class="tld">.link</span></div>
+  </a>
+  <ul class="nav-pills">
+    <li><a href="#hub">Servicios</a></li>
+    <li><a href="#arch">Arquitectura</a></li>
+    <li><a href="#stack">vs Stack actual</a></li>
+    <li><a href="#pricing">Planes</a></li>
+    <li><a href="https://hardtocrack.com" target="_blank">↗ GrapheneOS</a></li>
+  </ul>
+  <div class="nav-actions">
+    <span class="status-pill">Sistemas operativos</span>
+    <a href="#pricing" class="nav-cta">Empezar →</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════ HERO ═══ -->
+<section id="hero">
+  <div class="hero-tag">Privacy Hub · Zero-Knowledge stack</div>
+
+  <h1 class="hero-h1">
+    Tu stack de<br>
+    privacidad.<br>
+    <span class="grad">Una sola variable:</span> <span class="var">tú</span>.
+  </h1>
+
+  <p class="hero-lead">
+    Nube cifrada, fotos, contraseñas, email cifrado, alias, números desechables, SMS temporal.
+    <b>Ocho servicios. Una arquitectura. Una cuenta.</b>
+    Tu clave nunca sale de tu dispositivo. Lo que pasa en xyzapp.link, se queda en xyzapp.link — porque <b>matemáticamente no puede salir de otra manera.</b>
+  </p>
+
+  <div class="hero-cta">
+    <a href="#pricing" class="btn btn-cyan">Activar mi hub <span class="arr">→</span></a>
+    <a href="#hub" class="btn btn-ghost">Ver los 8 módulos</a>
+  </div>
+
+  <div class="hero-hub">
+    <div class="hero-hub-stats">
+      <div class="stat-card">
+        <div class="stat-key">Módulos <b>8</b></div>
+        <div class="stat-val">3<span class="sub">activos</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-key">Cifrado <b>AES</b></div>
+        <div class="stat-val"><span class="cyan">256</span><span class="sub">bits</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-key">Acceso proveedor <b>∅</b></div>
+        <div class="stat-val">CERO<span class="sub">por diseño</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-key">Jurisdicción</div>
+        <div class="stat-val"><span class="cyan">UE</span><span class="sub">RGPD</span></div>
+      </div>
+    </div>
+
+    <!-- RADIAL HUB DIAGRAM -->
+    <svg class="hub-svg" viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg">
+      <!-- Orbits -->
+      <circle cx="240" cy="240" r="120" fill="none" stroke="#2a3a4f" stroke-dasharray="2 5"/>
+      <circle cx="240" cy="240" r="180" fill="none" stroke="#1f2a38" stroke-dasharray="2 5"/>
+
+      <!-- Connection lines to active nodes -->
+      <line x1="240" y1="240" x2="240" y2="120" stroke="#00e5ff" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
+      <line x1="240" y1="240" x2="344" y2="180" stroke="#00e5ff" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
+      <line x1="240" y1="240" x2="344" y2="300" stroke="#00e5ff" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
+
+      <!-- Faded lines to coming nodes -->
+      <line x1="240" y1="240" x2="240" y2="360" stroke="#2a3a4f" stroke-width="1"/>
+      <line x1="240" y1="240" x2="136" y2="300" stroke="#2a3a4f" stroke-width="1"/>
+      <line x1="240" y1="240" x2="136" y2="180" stroke="#2a3a4f" stroke-width="1"/>
+      <line x1="240" y1="240" x2="60" y2="240" stroke="#2a3a4f" stroke-width="1" stroke-dasharray="2 4"/>
+      <line x1="240" y1="240" x2="420" y2="240" stroke="#2a3a4f" stroke-width="1" stroke-dasharray="2 4"/>
+
+      <!-- Center -->
+      <circle cx="240" cy="240" r="48" fill="#0e1318" stroke="#00e5ff" stroke-width="2"/>
+      <circle cx="240" cy="240" r="54" fill="none" stroke="#00e5ff" stroke-width="1" opacity="0.3"/>
+      <text x="240" y="237" text-anchor="middle" fill="#00e5ff" font-family="Syne, sans-serif" font-weight="800" font-size="13" letter-spacing="0.05em">xyzapp</text>
+      <text x="240" y="252" text-anchor="middle" fill="#9fb0c4" font-family="JetBrains Mono, monospace" font-size="8" letter-spacing="0.15em">·HUB·</text>
+
+      <!-- Active nodes (cyan) -->
+      <!-- Top : Drive -->
+      <circle cx="240" cy="120" r="28" fill="#161e28" stroke="#00e5ff" stroke-width="1.5"/>
+      <text x="240" y="124" text-anchor="middle" fill="#00e5ff" font-family="Syne, sans-serif" font-weight="700" font-size="13">DR</text>
+      <text x="240" y="92" text-anchor="middle" fill="#00e5ff" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="0.1em">CLOUD</text>
+
+      <!-- Top-right : Photos -->
+      <circle cx="344" cy="180" r="28" fill="#161e28" stroke="#00e5ff" stroke-width="1.5"/>
+      <text x="344" y="184" text-anchor="middle" fill="#00e5ff" font-family="Syne, sans-serif" font-weight="700" font-size="13">PH</text>
+      <text x="384" y="172" text-anchor="middle" fill="#00e5ff" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="0.1em">PHOTOS</text>
+
+      <!-- Bottom-right : Passwords -->
+      <circle cx="344" cy="300" r="28" fill="#161e28" stroke="#00e5ff" stroke-width="1.5"/>
+      <text x="344" y="304" text-anchor="middle" fill="#00e5ff" font-family="Syne, sans-serif" font-weight="700" font-size="13">PW</text>
+      <text x="384" y="312" text-anchor="middle" fill="#00e5ff" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="0.1em">VAULT</text>
+
+      <!-- Coming nodes (dim/gold) -->
+      <!-- Bottom : Mail -->
+      <circle cx="240" cy="360" r="24" fill="#161e28" stroke="#2a3a4f" stroke-width="1"/>
+      <text x="240" y="364" text-anchor="middle" fill="#9fb0c4" font-family="Syne, sans-serif" font-weight="700" font-size="11">ML</text>
+      <text x="240" y="394" text-anchor="middle" fill="#5b6c82" font-family="JetBrains Mono, monospace" font-size="8" letter-spacing="0.1em">MAIL</text>
+
+      <!-- Bottom-left : Alias -->
+      <circle cx="136" cy="300" r="24" fill="#161e28" stroke="#2a3a4f" stroke-width="1"/>
+      <text x="136" y="304" text-anchor="middle" fill="#9fb0c4" font-family="Syne, sans-serif" font-weight="700" font-size="11">AL</text>
+      <text x="98" y="312" text-anchor="middle" fill="#5b6c82" font-family="JetBrains Mono, monospace" font-size="8" letter-spacing="0.1em">ALIAS</text>
+
+      <!-- Top-left : Disposable mail -->
+      <circle cx="136" cy="180" r="24" fill="#161e28" stroke="#2a3a4f" stroke-width="1"/>
+      <text x="136" y="184" text-anchor="middle" fill="#9fb0c4" font-family="Syne, sans-serif" font-weight="700" font-size="11">TM</text>
+      <text x="96" y="172" text-anchor="middle" fill="#5b6c82" font-family="JetBrains Mono, monospace" font-size="8" letter-spacing="0.1em">TEMP·MAIL</text>
+
+      <!-- Far left : Numbers -->
+      <circle cx="60" cy="240" r="22" fill="#161e28" stroke="#2a3a4f" stroke-width="1"/>
+      <text x="60" y="244" text-anchor="middle" fill="#9fb0c4" font-family="Syne, sans-serif" font-weight="700" font-size="11">N°</text>
+      <text x="60" y="278" text-anchor="middle" fill="#5b6c82" font-family="JetBrains Mono, monospace" font-size="8" letter-spacing="0.1em">NÚMEROS</text>
+
+      <!-- Far right : SMS -->
+      <circle cx="420" cy="240" r="22" fill="#161e28" stroke="#2a3a4f" stroke-width="1"/>
+      <text x="420" y="244" text-anchor="middle" fill="#9fb0c4" font-family="Syne, sans-serif" font-weight="700" font-size="11">SM</text>
+      <text x="420" y="278" text-anchor="middle" fill="#5b6c82" font-family="JetBrains Mono, monospace" font-size="8" letter-spacing="0.1em">SMS·TEMP</text>
+    </svg>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="h-marquee">
+  <div class="h-marquee-track">
+    <span><span class="y">AES-256</span> · ZERO-KNOWLEDGE · <span class="m">E2E ENCRYPTION</span> · TLS 1.3 · RGPD · <span class="y">∅ ACCESS</span> · SIN PERMANENCIAS · <span class="m">8 MÓDULOS</span> · UNA CUENTA ◆ </span>
+    <span><span class="y">AES-256</span> · ZERO-KNOWLEDGE · <span class="m">E2E ENCRYPTION</span> · TLS 1.3 · RGPD · <span class="y">∅ ACCESS</span> · SIN PERMANENCIAS · <span class="m">8 MÓDULOS</span> · UNA CUENTA ◆ </span>
+  </div>
+</div>
+
+<!-- ═══════════════════ MODULES / HUB ═══ -->
+<div class="section-intro">
+  <div>
+    <div class="section-eyebrow">§ 01 · El hub modular</div>
+    <h2 class="section-h">Ocho módulos.<br>Una <em>cuenta única</em>.</h2>
+  </div>
+  <p>Cada módulo opera de forma independiente, pero todos comparten la misma arquitectura Zero-Knowledge. Activa los que necesites. Los demás esperan ahí.</p>
+</div>
+
+<section id="hub">
+  <div class="hub-grid">
+    <!-- ACTIVE: Cloud (large) -->
+    <div class="svc lg">
+      <div class="svc-num">MOD · 001</div>
+      <div class="svc-head">
+        <div class="svc-glyph">DR</div>
+        <span class="svc-status">Activo</span>
+      </div>
+      <h3>Nube cifrada<br>personal</h3>
+      <p>Archivos, documentos, copias de seguridad. Sincronización entre todos tus dispositivos. Cifrado AES-256 antes de salir de tu móvil, ordenador o tablet. Nadie — ni siquiera nosotros — puede leer lo que guardas.</p>
+      <div class="svc-foot">
+        <span class="replaces">Sustituye: <b>Google Drive · Dropbox · OneDrive</b></span>
+        <span class="svc-arrow">→</span>
+      </div>
+    </div>
+
+    <!-- ACTIVE: Photos (md) -->
+    <div class="svc md">
+      <div class="svc-num">MOD · 002</div>
+      <div class="svc-head">
+        <div class="svc-glyph">PH</div>
+        <span class="svc-status">Activo</span>
+      </div>
+      <h3>Fotos privadas</h3>
+      <p>Álbumes automáticos y búsqueda inteligente procesada en tu dispositivo. Ninguna IA en nuestros servidores ve tus imágenes.</p>
+      <div class="svc-foot">
+        <span class="replaces">Sustituye: <b>Google Fotos</b></span>
+        <span class="svc-arrow">→</span>
+      </div>
+    </div>
+
+    <!-- ACTIVE: Passwords (sm) -->
+    <div class="svc sm">
+      <div class="svc-num">MOD · 003</div>
+      <div class="svc-head">
+        <div class="svc-glyph">PW</div>
+        <span class="svc-status">Activo</span>
+      </div>
+      <h3>Vault contraseñas</h3>
+      <p>Credenciales cifradas, generador integrado, autofill y 2FA TOTP.</p>
+      <div class="svc-foot">
+        <span class="replaces">Sustituye: <b>1Password · LastPass</b></span>
+        <span class="svc-arrow">→</span>
+      </div>
+    </div>
+
+    <!-- COMING: Encrypted Mail (xl) -->
+    <div class="svc xl coming">
+      <div class="svc-num">MOD · 004</div>
+      <div class="svc-head">
+        <div class="svc-glyph">ML</div>
+        <span class="svc-status coming">Próximamente</span>
+      </div>
+      <h3>Email cifrado</h3>
+      <p>Tu propia dirección @xyzapp.link con cifrado extremo a extremo. Soporte PGP nativo. Sin escaneo de contenido, sin publicidad insertada, sin metadatos vendidos. La bandeja que ProtonMail debería haber sido, integrada en tu hub.</p>
+      <div class="svc-foot">
+        <span class="replaces">Sustituye: <b>ProtonMail · Tutanota</b></span>
+        <span class="svc-arrow">→</span>
+      </div>
+    </div>
+
+    <!-- COMING: Email Alias (sm) -->
+    <div class="svc sm coming">
+      <div class="svc-num">MOD · 005</div>
+      <div class="svc-head">
+        <div class="svc-glyph">AL</div>
+        <span class="svc-status coming">Próximamente</span>
+      </div>
+      <h3>Alias de email</h3>
+      <p>Crea un alias único por cada servicio. Si uno se filtra, sabrás exactamente cuál.</p>
+      <div class="svc-foot">
+        <span class="replaces">Sustituye: <b>SimpleLogin · AnonAddy</b></span>
+        <span class="svc-arrow">→</span>
+      </div>
+    </div>
+
+    <!-- COMING: Disposable Mail (md) -->
+    <div class="svc md coming">
+      <div class="svc-num">MOD · 006</div>
+      <div class="svc-head">
+        <div class="svc-glyph">TM</div>
+        <span class="svc-status coming">Próximamente</span>
+      </div>
+      <h3>Email desechable</h3>
+      <p>Direcciones temporales para registros puntuales. Se autodestruyen en horas. Sin huella, sin spam de vuelta.</p>
+      <div class="svc-foot">
+        <span class="replaces">Sustituye: <b>10minutemail · Temp-mail</b></span>
+        <span class="svc-arrow">→</span>
+      </div>
+    </div>
+
+    <!-- COMING: Disposable numbers (md) -->
+    <div class="svc md coming">
+      <div class="svc-num">MOD · 007</div>
+      <div class="svc-head">
+        <div class="svc-glyph">N°</div>
+        <span class="svc-status coming">Próximamente</span>
+      </div>
+      <h3>Números desechables</h3>
+      <p>Líneas virtuales temporales para registrar apps sin entregar tu número real. Verificación SMS sin compromiso de identidad.</p>
+      <div class="svc-foot">
+        <span class="replaces">Sustituye: <b>Twilio personal · Hushed</b></span>
+        <span class="svc-arrow">→</span>
+      </div>
+    </div>
+
+    <!-- COMING: Temp SMS (md) -->
+    <div class="svc md coming">
+      <div class="svc-num">MOD · 008</div>
+      <div class="svc-head">
+        <div class="svc-glyph">SM</div>
+        <span class="svc-status coming">Próximamente</span>
+      </div>
+      <h3>SMS temporal</h3>
+      <p>Recibe códigos de verificación en bandejas temporales. Sin SIM, sin operador, sin dejar rastro telefónico.</p>
+      <div class="svc-foot">
+        <span class="replaces">Sustituye: <b>temp.me · receive-sms</b></span>
+        <span class="svc-arrow">→</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ ARCHITECTURE ═══ -->
+<div class="section-intro">
+  <div>
+    <div class="section-eyebrow">§ 02 · Arquitectura</div>
+    <h2 class="section-h">La clave <em>nunca sale</em><br>de tu dispositivo.</h2>
+  </div>
+  <p>Una sola decisión técnica gobierna los 8 módulos: el cifrado ocurre en local. Lo que llega a nuestros servidores es ruido criptográfico.</p>
+</div>
+
+<section id="arch">
+  <div class="arch-card">
+    <div>
+      <h2>Zero-Knowledge.<br><span class="cyan">No por política.</span><br>Por diseño.</h2>
+      <p>Tu dispositivo genera una clave AES-256. Antes de que un solo byte abandone tu móvil, el contenido se cifra. Lo que llega a nuestros servidores son fragmentos binarios opacos.</p>
+      <p>No tenemos la clave. No podemos pedirla. No podemos forzarla. No podemos entregarla. Es la única arquitectura que sobrevive a una orden judicial, una brecha de seguridad o un cambio de manos del proveedor.</p>
+      <ul class="arch-bullets">
+        <li><b>NOTA·01</b> — Cifrado en origen, antes de cualquier transmisión.</li>
+        <li><b>NOTA·02</b> — El servidor almacena fragmentos cifrados. No los interpreta.</li>
+        <li><b>NOTA·03</b> — Sin tu clave, los datos son ruido criptográfico.</li>
+        <li><b>NOTA·04</b> — Infraestructura europea bajo RGPD.</li>
+      </ul>
+    </div>
+
+    <div class="arch-visual">
+      <div class="flow-row">
+        <div class="flow-box active">
+          📱 Tu dispositivo
+          <small>genera clave AES-256 · cifra local</small>
+        </div>
+        <div class="flow-arrow">→<span>TLS 1.3</span></div>
+        <div class="flow-box">
+          🌐 Tránsito
+          <small>fragmentos cifrados · opacos</small>
+        </div>
+      </div>
+      <div class="flow-row">
+        <div class="flow-box active">
+          🖥️ Servidor xyzapp
+          <small>almacena · NO descifra</small>
+        </div>
+        <div class="flow-arrow r">↯<span>orden judicial</span></div>
+        <div class="flow-box danger">
+          🏛️ Autoridades
+          <small>reciben: basura criptográfica</small>
+        </div>
+      </div>
+      <div class="flow-row">
+        <div class="flow-box active" style="border-color:var(--green); background:rgba(40,224,144,0.06); color:var(--green);">
+          ✓ Resultado
+          <small style="color:var(--green);">control 100% TUYO · acceso ∅ para terceros</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ STACK COMPARISON ═══ -->
+<div class="section-intro">
+  <div>
+    <div class="section-eyebrow">§ 03 · Stack actual vs xyzapp</div>
+    <h2 class="section-h">Suma lo que <em>ya pagas</em>.<br>Y lo que <em>cedes</em>.</h2>
+  </div>
+  <p>El equivalente en servicios sueltos: 8 cuentas, 8 facturaciones, 8 políticas de privacidad. Y aún así, ninguno con Zero-Knowledge real.</p>
+</div>
+
+<section id="stack">
+  <div class="stack-grid">
+    <div class="stack-pane bad">
+      <h3>Tu stack actual</h3>
+      <div class="stack-sub">// 8 servicios distintos · 8 empresas con tus datos</div>
+      <ul class="stack-list">
+        <li>Google Drive (cloud) <span class="price-tag bad">~2 €/mes</span></li>
+        <li>Google Fotos (fotos) <span class="price-tag bad">incluido</span></li>
+        <li>1Password (vault) <span class="price-tag bad">~3 €/mes</span></li>
+        <li>ProtonMail (email cifrado) <span class="price-tag bad">~4 €/mes</span></li>
+        <li>SimpleLogin (alias) <span class="price-tag bad">~3 €/mes</span></li>
+        <li>Email desechable <span class="price-tag bad">gratis · con tracking</span></li>
+        <li>Twilio / Hushed (n° desechables) <span class="price-tag bad">~5 €/mes</span></li>
+        <li>SMS temporal (sin servicio) <span class="price-tag bad">depende del azar</span></li>
+      </ul>
+      <div class="stack-total">
+        <div>
+          <div class="stack-total-label">Coste mensual</div>
+          <div class="stack-total-val"><span class="mag">~17 €</span></div>
+        </div>
+        <div>
+          <div class="stack-total-label">Empresas con acceso</div>
+          <div class="stack-total-val"><span class="mag">8</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stack-pane good">
+      <h3>Con xyzapp.link</h3>
+      <div class="stack-sub">// 8 módulos · 1 cuenta · 1 arquitectura Zero-Knowledge</div>
+      <ul class="stack-list">
+        <li>Nube cifrada <span class="price-tag good">incluido</span></li>
+        <li>Fotos privadas <span class="price-tag good">incluido</span></li>
+        <li>Vault de contraseñas <span class="price-tag good">incluido</span></li>
+        <li>Email cifrado <span class="price-tag good">incluido</span></li>
+        <li>Alias ilimitados <span class="price-tag good">incluido</span></li>
+        <li>Email desechable <span class="price-tag good">incluido</span></li>
+        <li>Números desechables <span class="price-tag good">incluido</span></li>
+        <li>SMS temporal <span class="price-tag good">incluido</span></li>
+      </ul>
+      <div class="stack-total">
+        <div>
+          <div class="stack-total-label">Coste mensual</div>
+          <div class="stack-total-val"><span class="cyan">8 €</span></div>
+        </div>
+        <div>
+          <div class="stack-total-label">Empresas con acceso</div>
+          <div class="stack-total-val"><span class="cyan">∅</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ PRICING ═══ -->
+<div class="section-intro">
+  <div>
+    <div class="section-eyebrow">§ 04 · Planes</div>
+    <h2 class="section-h">Sin permanencias.<br><em>Sin letra pequeña.</em></h2>
+  </div>
+  <p>Tres tarifas. Tus datos exportables en cualquier momento. Cancelas y los bloques cifrados quedan inservibles para todos — incluidos nosotros.</p>
+</div>
+
+<section id="pricing">
+  <div class="pricing-grid">
+    <!-- Mensual -->
+    <div class="plan">
+      <div class="plan-tag">TIER · 01</div>
+      <div class="plan-name">Mensual</div>
+      <div class="plan-price">
+        <span class="currency">€</span>
+        <span class="amount">8</span>
+        <span style="font-family:var(--font-m); font-size:13px; color:var(--text-2);">/mes</span>
+      </div>
+      <div class="plan-period">// sin compromiso · cancelas cuando quieras</div>
+      <ul class="plan-list">
+        <li>Los 8 módulos del hub</li>
+        <li>Apps móvil + escritorio + web</li>
+        <li>Soporte humano directo</li>
+        <li>Pago con tarjeta o cripto</li>
+        <li>Exportación total de tus datos</li>
+      </ul>
+      <a href="#" class="plan-btn">Activar mensual →</a>
+    </div>
+
+    <!-- Anual featured -->
+    <div class="plan featured">
+      <div class="plan-badge">★ Recomendado</div>
+      <div class="plan-tag">TIER · 02 · ANUAL</div>
+      <div class="plan-name">Anual</div>
+      <div class="plan-price">
+        <span class="currency">€</span>
+        <span class="amount">80</span>
+        <span style="font-family:var(--font-m); font-size:13px; color:var(--text-2);">/año</span>
+      </div>
+      <div class="plan-period">// equivale a 6,67 €/mes · 2 meses gratis</div>
+      <ul class="plan-list">
+        <li>Todo del plan mensual</li>
+        <li>2 meses incluidos sin coste</li>
+        <li>Prioridad en soporte</li>
+        <li>Backups adicionales</li>
+        <li>Acceso anticipado a nuevos módulos</li>
+      </ul>
+      <a href="#" class="plan-btn">Activar anual →</a>
+    </div>
+
+    <!-- Bundle -->
+    <div class="plan">
+      <div class="plan-tag">TIER · 03 · BUNDLE</div>
+      <div class="plan-name">GrapheneOS</div>
+      <div class="plan-price">
+        <span class="freeword">GRATIS</span>
+      </div>
+      <div class="plan-period">// 6 meses con tu Pixel GrapheneOS Premium</div>
+      <ul class="plan-list">
+        <li>6 meses xyzapp.link incluidos</li>
+        <li>Activación en menos de 24h</li>
+        <li>Configuración inicial guiada</li>
+        <li>Guía de uso para móvil</li>
+        <li>Renovación opcional al precio anual</li>
+      </ul>
+      <a href="https://hardtocrack.com" class="plan-btn" target="_blank">Ver GrapheneOS ↗</a>
+    </div>
+  </div>
+
+  <div class="plan-disclaimer">
+    <span><span class="dot">◆</span> Sin permanencias</span>
+    <span><span class="dot">◆</span> Exporta cuando quieras</span>
+    <span><span class="dot">◆</span> Cancela en un click</span>
+    <span><span class="dot">◆</span> Bitcoin · Monero · tarjeta</span>
+  </div>
+</section>
+
+<!-- ═══════════════════ CERTS ═══ -->
+<div class="section-intro">
+  <div>
+    <div class="section-eyebrow">§ 05 · Garantías técnicas</div>
+    <h2 class="section-h">Matemáticas.<br><em>No promesas.</em></h2>
+  </div>
+  <p>Cuatro estándares criptográficos forman el perímetro de cada módulo. No son features que activamos en un panel — son la arquitectura misma.</p>
+</div>
+
+<section id="cert">
+  <div class="cert-row">
+    <div class="cert">
+      <div class="badge">AES<br>256</div>
+      <h4>Cifrado militar</h4>
+      <p>Estándar de gobiernos y bancos. Tus archivos se cifran con esta clave antes de salir de tu dispositivo. Irreversible sin tu clave.</p>
+    </div>
+    <div class="cert">
+      <div class="badge">E<br>2E</div>
+      <h4>Extremo a extremo</h4>
+      <p>La clave de descifrado solo existe donde tú decides. Ni el servidor, ni un intermediario puede generarla o recuperarla.</p>
+    </div>
+    <div class="cert">
+      <div class="badge">0K</div>
+      <h4>Zero-Knowledge</h4>
+      <p>Conocimiento cero. El servidor almacena pero nunca puede interpretar contenido. Imposible por diseño, no por política.</p>
+    </div>
+    <div class="cert">
+      <div class="badge">TLS<br>1.3</div>
+      <h4>Transporte cifrado</h4>
+      <p>Toda comunicación viaja cifrada en tránsito. La versión 1.3 elimina vulnerabilidades históricas de capas anteriores.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ FINAL CTA ═══ -->
+<section id="final">
+  <div class="final-card">
+    <h2>Tu privacidad<br>no depende de su<br><span class="grad">buena voluntad.</span></h2>
+    <p>Controla tu vida digital con garantía técnica. No con esperanza corporativa. Ocho módulos, una cuenta, una arquitectura matemáticamente irreversible.</p>
+    <div class="final-cta-row">
+      <a href="#pricing" class="btn btn-cyan">Activar mi hub ahora <span class="arr">→</span></a>
+      <a href="https://hardtocrack.com" class="btn btn-ghost" target="_blank">↗ Ver GrapheneOS · hardtocrack.com</a>
+    </div>
+
+    <div class="onboard">
+      <div class="onboard-step">
+        <div class="step-n">PASO·01</div>
+        <h4>Contrata tu plan</h4>
+        <p>Mensual, anual o bundle con tu GrapheneOS Premium. Tarjeta o cripto.</p>
+      </div>
+      <div class="onboard-step">
+        <div class="step-n">PASO·02</div>
+        <h4>Credenciales en 24h</h4>
+        <p>Acceso personalizado en menos de un día. Sin formularios invasivos.</p>
+      </div>
+      <div class="onboard-step">
+        <div class="step-n">PASO·03</div>
+        <h4>Instala los módulos</h4>
+        <p>Guía paso a paso para activar los servicios que necesites.</p>
+      </div>
+      <div class="onboard-step">
+        <div class="step-n">PASO·04</div>
+        <h4>Control total</h4>
+        <p>Tus datos cifrados desde tu dispositivo. Tu clave. Tu hub.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ FOOTER ═══ -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <div class="footer-brand">
+        <div class="brand-mark">xyz</div>
+        <div class="brand-name">xyzapp<span class="tld">.link</span></div>
+      </div>
+      <p>Hub modular de privacidad. Cifrado en origen, almacenado en Europa, controlado solo por ti. Extensión operativa de hardtocrack.com.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Servicios</h5>
+      <ul>
+        <li><a href="#hub">Nube cifrada</a></li>
+        <li><a href="#hub">Fotos privadas</a></li>
+        <li><a href="#hub">Vault contraseñas</a></li>
+        <li><a href="#hub">Email cifrado</a></li>
+        <li><a href="#hub">Alias · desechables</a></li>
+        <li><a href="#hub">Números · SMS temp</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Empresa</h5>
+      <ul>
+        <li><a href="https://hardtocrack.com" target="_blank">↗ hardtocrack.com</a></li>
+        <li><a href="#arch">Arquitectura</a></li>
+        <li><a href="#cert">Garantías</a></li>
+        <li><a href="#pricing">Tarifas</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Contacto seguro</h5>
+      <ul>
+        <li><a href="mailto:hi@xyzapp.link">hi@xyzapp.link</a></li>
+        <li><a href="#">Clave PGP pública</a></li>
+        <li><a href="#">Soporte humano · 24h</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div>© 2025 xyzapp.link · privacy is not a feature, it's a right</div>
+    <div class="right">
+      <span class="pill">Sistemas operativos</span>
+      <a href="#" style="color:var(--dim);text-decoration:none;">Privacidad</a>
+      <a href="#" style="color:var(--dim);text-decoration:none;">Términos</a>
+      <a href="#" style="color:var(--dim);text-decoration:none;">Seguridad</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Subtle reveal on scroll
+const cards = document.querySelectorAll('.svc, .cert, .plan, .stat-card, .onboard-step');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach((e) => {
+    if (e.isIntersecting) {
+      e.target.style.transition = 'opacity .6s ease, transform .6s ease';
+      requestAnimationFrame(() => {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      });
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+cards.forEach((c, i) => {
+  c.style.opacity = '0';
+  c.style.transform = 'translateY(16px)';
+  c.style.transitionDelay = (i % 6 * 0.04) + 's';
+  io.observe(c);
+});
+
+// Active section in nav
+const sections = document.querySelectorAll('section[id]');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 100) current = s.id;
+  });
+  document.querySelectorAll('.nav-pills a').forEach(a => {
+    a.style.color = a.getAttribute('href') === '#' + current ? 'var(--cyan)' : '';
+    a.style.background = a.getAttribute('href') === '#' + current ? 'var(--cyan-soft)' : '';
+  });
+});
+</script>
+</body>
+</html>
